@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from imagefarm import DIMENSIONS, random_image_adjustment, polygon_area, random_polygon, random_point, transparent_superimposition, fragment_overlay
+from src import DIMENSIONS, random_image_adjustment, polygon_area, random_polygon, random_point, transparent_superimposition, fragment_overlay
 from random import randint
 import math
 
@@ -52,8 +52,8 @@ def random_gene(source_images):
     dst_shift = random_point([0, 0], 100)
     dst_rotation = randint(-20, 20)
     dst_scaling = randint(50, 130)/100
-    # applying_strategy = transparent_superimposition if polygon_area(mask_vertices)*dst_scaling > 100000 else fragment_overlay
-    applying_strategy = fragment_overlay
+    applying_strategy = transparent_superimposition if polygon_area(mask_vertices)*dst_scaling > 100000 else fragment_overlay
+    # applying_strategy = fragment_overlay
     return Gene(source_img, image_adjustment, mask_vertices, dst_shift, dst_rotation,
                 dst_scaling, applying_strategy)
 
@@ -64,7 +64,7 @@ def randomize(allele):
     allele.dst_shift = apply_with_probability(0.7, random_point([0, 0], 100), allele.dst_shift)
     allele.dst_rotation = apply_with_probability(0.7, randint(-20, 20), allele.dst_rotation)
     allele.dst_scaling = apply_with_probability(0.7, randint(50, 130)/100, allele.dst_scaling)
-    # allele.applying_strategy = transparent_superimposition if polygon_area(allele.mask_vertices)*allele.dst_scaling > 100000 else fragment_overlay
+    allele.applying_strategy = transparent_superimposition if polygon_area(allele.mask_vertices)*allele.dst_scaling > 100000 else fragment_overlay
 
 
 def genes_in_chromosomes():
@@ -83,7 +83,7 @@ def fitness_function(chromosome, fitness_dict):
         return fitness_dict[chromosome]
     image = decode(chromosome)
 
-    # number of repeated pixels, weighted by number of repetitions (n times repeated -> weighted by (n-1))
+    # number of repeated pixels, weighted by number of repetitions (n times repeated -> weighted by n)
     def repetitions_in_genes():
         def gene2polygon_img(allele):
             polygon_img = np.zeros((512, 512), dtype='uint8')
@@ -98,11 +98,7 @@ def fitness_function(chromosome, fitness_dict):
 
     #  number of pixels in canny except long lines from polygons, multiplied by 255.
     def shapes_measure():
-        #  j = randint(0, 1000)
-        #  cv2.imshow(f"orig{j}", image)
-
         canny = cv2.Canny(cv2.GaussianBlur(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), (3, 3), cv2.BORDER_DEFAULT), 175, 250)
-        #  cv2.imshow(f"canny{j}", canny)
 
         def lines_mask(canny):
             lines = cv2.HoughLines(canny, 1, np.pi / 1800, 120, None, 0, 0)
@@ -121,13 +117,9 @@ def fitness_function(chromosome, fitness_dict):
             return mask
 
         lines = cv2.bitwise_and(canny, canny, mask=lines_mask(canny))
-        #  cv2.imshow(f"lines{j}", lines)
 
         return np.sum(canny - lines)*1.5/1000000
 
-    # print("shapes ", shapes_measure())
-    # print("emptiness ", ban_emptiness())
-    # print("repetitions ", repetitions_in_genes())
     fitness_dict[chromosome] = 1.5*shapes_measure() + non_zero_pixels() - repetitions_in_genes()
     return fitness_dict[chromosome]
 
