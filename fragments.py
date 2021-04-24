@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from src import DIMENSIONS, random_image_adjustment, polygon_area, random_polygon, random_point, transparent_superimposition, fragment_overlay
+from imagefarm import DIMENSIONS, random_image_adjustment, polygon_area, random_polygon, random_point, transparent_superimposition, fragment_overlay
 from random import randint
 import math
 

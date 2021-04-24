@@ -15,20 +15,9 @@ population = initialize_population(images, POPULATION_SIZE)
 fitness_dict = {}
 
 for i in range(ITERATIONS):
-    for j in range(POPULATION_SIZE):
-        # imshow(f"{i}-{j}", decode(population[j]))
-        print(fitness_function(population[j], fitness_dict))
-    print()
-    # waitKey()
-    # destroyAllWindows()
     mutants = map(partial(mutate, p=MUTATION_PROBABILITY), population)
     crossovers = map(crossover, pair_as_parents(population, OFFSPRINGS, PARENTSHIP_PROBABILITY, fitness_dict))
     population = select(SELECTION_PROBABILITY, [*mutants, *crossovers], POPULATION_SIZE, fitness_dict)
 
 
-for j in range(POPULATION_SIZE):
-    # imshow(f"{i}-{j}", decode(population[j]))
-    save(decorated(population[j]), identifier=333)
-
-
-save(decorated(select(1, population, 1, fitness_dict)[0]), identifier=13)
+save(decorated(select(1, population, 1, fitness_dict)[0]), identifier=11)

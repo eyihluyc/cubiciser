@@ -84,7 +84,7 @@ def compose_functions(*func):
 
 def load(path='images'):
     _, _, filenames = next(walk(path))
-    return cv2.resize(np.array(list(map(lambda x: cv2.imread(path + '/' + x), filenames)), dtype='uint8'), DIMENSIONS)
+    return np.array(list(map(lambda x: cv2.resize(cv2.imread(path + '/' + x), DIMENSIONS), filenames)), dtype='uint8')
 
 
 def save(image, identifier=123):
